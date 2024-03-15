@@ -1,6 +1,8 @@
-# Visual Studio Code Server support in NixOS
+# VS Codium Server support in NixOS
 
-Experimental support for VS Code Server in NixOS. The NodeJS by default supplied by VS Code cannot be used within NixOS due to missing hardcoded paths, so it is automatically replaced by a symlink to a compatible version of NodeJS that does work under NixOS.
+This is a clone of https://github.com/nix-community/nixos-vscode-server adopted to vscodium-server
+
+Experimental support for VS Codium Server in NixOS. The NodeJS by default supplied by VS Codium cannot be used within NixOS due to missing hardcoded paths, so it is automatically replaced by a symlink to a compatible version of NodeJS that does work under NixOS.
 
 ## Installation
 
@@ -14,10 +16,10 @@ you'll have to manually enable the service for each user (see below).
 ```nix
 {
   imports = [
-    (fetchTarball "https://github.com/nix-community/nixos-vscode-server/tarball/master")
+    (fetchTarball "https://github.com/unicap/nixos-vscodium-server/tarball/master")
   ];
 
-  services.vscode-server.enable = true;
+  services.vscodium-server.enable = true;
 }
 ```
 
@@ -25,14 +27,14 @@ you'll have to manually enable the service for each user (see below).
 
 ```nix
 {
-  inputs.vscode-server.url = "github:nix-community/nixos-vscode-server";
+  inputs.vscodium-server.url = "github:unicap/nixos-vscodium-server";
 
-  outputs = { self, nixpkgs, vscode-server }: {
+  outputs = { self, nixpkgs, vscodium-server }: {
     nixosConfigurations.yourhostname = nixpkgs.lib.nixosSystem {
       modules = [
-        vscode-server.nixosModules.default
+        vscodium-server.nixosModules.default
         ({ config, pkgs, ... }: {
-          services.vscode-server.enable = true;
+          services.vscodium-server.enable = true;
         })
       ];
     };
@@ -45,7 +47,7 @@ you'll have to manually enable the service for each user (see below).
 And then enable them for the relevant users:
 
 ```bash
-systemctl --user enable auto-fix-vscode-server.service
+systemctl --user enable auto-fix-vscodium-server.service
 ```
 
 You will see the following message:
@@ -69,12 +71,12 @@ Possible reasons for having this kind of units are:
 However you can safely ignore it. The service will start automatically after reboot once enabled, or you can just start it immediately yourself with:
 
 ```bash
-systemctl --user start auto-fix-vscode-server.service
+systemctl --user start auto-fix-vscodium-server.service
 ```
 
 Enabling the user service creates a symlink to the Nix store, but the linked store path could be garbage collected at some point. One workaround to this particular issue is creating the following symlink:
 ```bash
-ln -sfT /run/current-system/etc/systemd/user/auto-fix-vscode-server.service ~/.config/systemd/user/auto-fix-vscode-server.service
+ln -sfT /run/current-system/etc/systemd/user/auto-fix-vscodium-server.service ~/.config/systemd/user/auto-fix-vscodium-server.service
 ```
 
 ### Home Manager
@@ -84,10 +86,10 @@ Put this code into your [home-manager](https://github.com/nix-community/home-man
 ```nix
 {
   imports = [
-    "${fetchTarball "https://github.com/msteen/nixos-vscode-server/tarball/master"}/modules/vscode-server/home.nix"
+    "${fetchTarball "https://github.com/msteen/nixos-vscodium-server/tarball/master"}/modules/vscodium-server/home.nix"
   ];
 
-  services.vscode-server.enable = true;
+  services.vscodium-server.enable = true;
 }
 ```
 
@@ -100,7 +102,7 @@ Whether to enable the service or not.
 
 ```nix
 {
-  services.vscode-server.enable = true;
+  services.vscodium-server.enable = true;
 }
 ```
 
@@ -109,7 +111,7 @@ A FHS compatible environment can be enabled to make binaries supplied by extensi
 
 ```nix
 {
-  services.vscode-server.enableFHS = true;
+  services.vscodium-server.enableFHS = true;
 }
 ```
 
@@ -122,7 +124,7 @@ Disclaimer: I am not a very active user of this extension and even NixOS (at the
 
 ```nix
 {
-  services.vscode-server.nodejsPackage = pkgs.nodejs-16_x;
+  services.vscodium-server.nodejsPackage = pkgs.nodejs-16_x;
 }
 ```
 
@@ -133,7 +135,7 @@ This same list is also used to determine the `RPATH` when automatically patching
 
 ```nix
 {
-  services.vscode-server.extraRuntimeDependencies = pkgs: with pkgs; [
+  services.vscodium-server.extraRuntimeDependencies = pkgs: with pkgs; [
     curl
   ];
 }
@@ -144,7 +146,7 @@ The installation path for VS Code server is configurable and the default can dif
 
 ```nix
 {
-  services.vscode-server.installPath = "~/.vscode-server-oss";
+  services.vscodium-server.installPath = "~/.vscodium-server-oss";
 }
 ```
 
@@ -153,9 +155,9 @@ The goal of this project is to make VS Code server work with NixOS, anything mor
 
 ```nix
 {
-  services.vscode-server.postPatch = ''
+  services.vscodium-server.postPatch = ''
     bin=$1
-    bin_dir=${config.services.vscode-server.installPath}/bin/$bin
+    bin_dir=${config.services.vscodium-server.installPath}/bin/$bin
     # ...
   '';
 }
@@ -166,7 +168,7 @@ The goal of this project is to make VS Code server work with NixOS, anything mor
 This is not really an issue with this project per se, but with systemd user services in NixOS in general. After updating it can be necessary to first disable the service again:
 
 ```bash
-systemctl --user disable auto-fix-vscode-server.service
+systemctl --user disable auto-fix-vscodium-server.service
 ```
 
 This will remove the symlink to the old version. Then you can enable/start it again.

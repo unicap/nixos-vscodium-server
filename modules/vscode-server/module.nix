@@ -4,7 +4,7 @@ moduleConfig: {
   pkgs,
   ...
 }: {
-  options.services.vscode-server = let
+  options.services.vscodium-server = let
     inherit (lib) mkEnableOption mkOption;
     inherit (lib.types) lines listOf nullOr package str;
   in {
@@ -34,8 +34,8 @@ moduleConfig: {
 
     installPath = mkOption {
       type = str;
-      default = "~/.vscode-server";
-      example = "~/.vscode-server-oss";
+      default = "~/.vscodium-server";
+      example = "~/.vscodium-server-oss";
       description = ''
         The install path.
       '';
@@ -53,17 +53,17 @@ moduleConfig: {
 
   config = let
     inherit (lib) mkDefault mkIf mkMerge;
-    cfg = config.services.vscode-server;
-    auto-fix-vscode-server =
-      pkgs.callPackage ../../pkgs/auto-fix-vscode-server.nix
+    cfg = config.services.vscodium-server;
+    auto-fix-vscodium-server =
+      pkgs.callPackage ../../pkgs/auto-fix-vscodium-server.nix
       (removeAttrs cfg [ "enable" ]);
   in
     mkIf cfg.enable (mkMerge [
       {
-        services.vscode-server.nodejsPackage = mkIf cfg.enableFHS (mkDefault pkgs.nodejs_20);
+        services.vscodium-server.nodejsPackage = mkIf cfg.enableFHS (mkDefault pkgs.nodejs_20);
       }
       (moduleConfig {
-        name = "auto-fix-vscode-server";
+        name = "auto-fix-vscodium-server";
         description = "Automatically fix the VS Code server used by the remote SSH extension";
         serviceConfig = {
           # When a monitored directory is deleted, it will stop being monitored.
@@ -72,7 +72,7 @@ moduleConfig: {
           # so rather than creating our own restart mechanism, we leverage systemd to do this for us.
           Restart = "always";
           RestartSec = 0;
-          ExecStart = "${auto-fix-vscode-server}/bin/auto-fix-vscode-server";
+          ExecStart = "${auto-fix-vscodium-server}/bin/auto-fix-vscodium-server";
         };
       })
     ]);

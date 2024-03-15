@@ -1,5 +1,5 @@
 {
-  description = "NixOS VSCode server";
+  description = "NixOS VSCodium server";
 
   inputs = {
     flake-utils.url = "github:numtide/flake-utils";
@@ -12,9 +12,9 @@
   }:
     {
       nixosModule = self.nixosModules.default; # Deprecrated, but perhaps still in use.
-      nixosModules.default = import ./modules/vscode-server;
+      nixosModules.default = import ./modules/vscodium-server;
       nixosModules.home = self.homeModules.default; # Backwards compatiblity.
-      homeModules.default = import ./modules/vscode-server/home.nix; # Consistent with homeConfigurations.
+      homeModules.default = import ./modules/vscodium-server/home.nix; # Consistent with homeConfigurations.
     }
     // (let
       inherit (flake-utils.lib) defaultSystems eachSystem;
@@ -22,16 +22,16 @@
       eachSystem defaultSystems (system: let
         pkgs = nixpkgs.legacyPackages.${system};
         inherit (pkgs.lib) hasSuffix optionalAttrs;
-        auto-fix-vscode-server = pkgs.callPackage ./pkgs/auto-fix-vscode-server.nix { };
+        auto-fix-vscodium-server = pkgs.callPackage ./pkgs/auto-fix-vscodium-server.nix { };
       in
         # The package depends on `inotify-tools` which is only available on Linux.
         optionalAttrs (hasSuffix "-linux" system) {
           packages = {
-            inherit auto-fix-vscode-server;
-            default = auto-fix-vscode-server;
+            inherit auto-fix-vscodium-server;
+            default = auto-fix-vscodium-server;
           };
           checks = {
-            inherit auto-fix-vscode-server;
+            inherit auto-fix-vscodium-server;
           };
         }));
 }
